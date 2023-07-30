@@ -1,132 +1,46 @@
-rm(list=ls())
+##################################
+# Functions for the SPSC approach
+##################################
 
-setwd("D:/Dropbox/Chan/Research/Postdoc2022/COCASC/SubmitCode/Data")
 source("0.Function_SPSC_Data.R")
+
+ATT.Type <- "constant"
+lengthb  <- 1  
+Ypos     <- c(1,3)
+gY.Bound <- c(6.5,7.1) 
+
+##################################
+# Library
+##################################
+
+library(splines)
+library(MASS)
 
 for(gp in 1:6){
   
-  gY13 <- c(6.5,7.1)
-  
-  y.group <- 3
-  ATT.Type <- "constant"
-  lengthb  <- 1  
+  ##################################
+  # Hyperparameters
+  ##################################
   
   mgrid <- c(24,24,24,24,10,48)
   m <- mgrid[gp]
-  
-  
-  m.add <- 0
   Num.Boot  <- 10
   Boot.valid.thr  <- 10000
   Boot.Scale <- c(0.8,0.9,1,1.1,1.2)
-  
-  gY.Bound <- gY13
-  Ypos <- c(1,3)
   
   gT.Bound <- c(-25,25)+c(0,167)
   stab.const <- 10^(-8)
   Boot.Factor <- 1
   bs.intercept <- F
   
-  
-  
-  T.Post <- T1  <- 36       ## Roughly 90 days before
-  T.Pre  <- T0  <- 217 - T1 # 123
-  
-  
-  #########################################################
-  
-  # library(readstata13)
-  library(splines)
-  library(MASS)
-  # library(gmm)
-  
-  
-  Data <- read.csv("Data.csv")
-  Data$prc_log <- log( Data$mid_itp )
-  Data$date <- as.numeric( as.Date(Data$date) )+23715
-  
-  # Firm ID 1 has missing time between date 665 (time 99) - 670 (time 101)
-  # We impute this value
-  
-  (table(Data$ID, Data$date))[1,] 
-  Data[Data$ID==1 & Data$date==665,]
-  Data[Data$ID==1 & Data$date==670,]
-  
-  Data <- rbind(Data[1:99,],
-                Data[Data$ID==1 & Data$date==665,],
-                Data[100:dim(Data)[1],])
-  Data$time <- rep(1:411,59)
-  Data$date <- rep(sort(unique(Data$date)),59)
-  
-  # CUT
-  Start <- as.numeric( as.Date("1905-12-31") )+23715
-  END   <- as.numeric( as.Date("1909-01-02") )+23715
-  Data  <- Data[Start <= Data$date & Data$date <= END, ]
-  
-  # 34, 37, 57 ; 37 = Lincoln
-  
-  Actual.Time <- unique(Data$date)
-  Actual.Time.Date <- as.Date(Actual.Time-23715,origin="1970-01-01")
-  
-  Donor.Index <- setdiff(unique(Data$ID),unique( Data$ID[Data$treat_a+Data$treat_c==1] ))
-  
-  
-  if(ATT.Type=="spline"){
-    Post.Time.Basis.Fit <- bs(1:T1,
-                              df=(lengthb),
-                              intercept = bs.intercept,
-                              Boundary.knots = gT.Bound)
-    Post.Time.Basis     <- Post.Time.Basis.Fit
-  } else if (ATT.Type=="constant") {
-    Post.Time.Basis     <- rep(1,T1)
-  } else if (ATT.Type=="exponential") {
-    Post.Time.Basis     <- cbind(1,exp((1:T1-T1)/T1))
-  }
-  
-  
-  
-  
-  N <- length(Donor.Index)
-  
-  Wmat.series <- matrix(0,T0+T1,N)
-  
-  for(w.iter in 1:length(Donor.Index)){
-    d.index <- Donor.Index[w.iter]
-    Wmat.series[,w.iter] <- (Data[Data$ID==d.index,]$prc_log)[1:(T0+T1)]
-  }
-  
-  Wmat.series  <- Wmat.series 
-  
-  Ymat.series <- rep(0,T0+T1)
-  Ymat.series <- cbind(Data$prc_log[Data$ID==34],
-                       Data$prc_log[Data$ID==37],
-                       Data$prc_log[Data$ID==57])
-  Y1.series <- apply(Ymat.series[,Ypos],1,mean)
-  Ymat.Pre  <- Ymat.series[(1:T0),]
-  Ymat.Post <- Ymat.series[T0+(1:T1),]
-  
-  ## Pre-treatment series 
-  
-  Wmat.Pre <- Wmat.series[(1:T0),] # + matrix(rnorm(T0*N),T0,N)*0.001
-  Y1.Pre   <- Y1.series[(1:T0)]    # + rnorm(T0)*0.001
-  
-  Wmat.Post <- Wmat.series[T0+(1:T1),] # + matrix(rnorm(T1*N),T1,N)*0.001
-  Y1.Post   <- Y1.series[T0+(1:T1)]    # + rnorm(T1)*0.001
-  
-  Wmat.series <- Wmat.series 
-  Wmat.Pre    <- Wmat.Pre    
-  Wmat.Post   <- Wmat.Post   
-  
-  
-  gY.Pre <- matrix(0,length(Y1.Pre),m+m.add)
-  gY.Fit <- bs(Y1.Pre,df=m+m.add,
-               intercept = F,
-               Boundary.knots = gY.Bound)
-  gY.Pre[,1:(m+m.add)]       <- gY.Fit
+  T0 <- 217
+  mT <- round( (T0^(1/3)) )
+
+  ##################################
+  # Donor Choice: run 10-1-10-3 R files
+  ##################################
   
   vc <- list()
-  
   vc[[1]] <- c(4,10,11,12,14,17,18,24,26,34,43,45)
   vc[[2]] <- c(1,6,7,8,22,25,28,29,32,35,38,44)
   vc[[3]] <- c(2,3,16,19,20,21,27,31,36,37,40,41,46)
@@ -134,21 +48,28 @@ for(gp in 1:6){
   vc[[5]] <- c(1,2,5,9,18)
   vc[[6]] <- c(1,2,3,4,5,6,8,9,12,13,14,19,20,23,27,33,34,37,38,40,41,42,44,47)
   
+  ##################################
+  # Data Cleaning
+  ##################################
+  
+  source("0.DataCleaning_Placebo.R") 
+  
+  ##################################
+  # Define GMM Data
+  ##################################
+  
+  gY.Pre <- matrix(0,length(Y1.Pre),m)
+  gY.Fit <- bs(Y1.Pre,df=m,
+               intercept = F,
+               Boundary.knots = gY.Bound)
+  gY.Pre[,1:(m)]       <- gY.Fit
+  
   Wmat.series <- Wmat.series[,vc[[gp]]]
   Wmat.Pre    <- Wmat.Pre   [,vc[[gp]]]
   Wmat.Post   <- Wmat.Post  [,vc[[gp]]]
   
   N <- dim(Wmat.Pre)[2]
   m <- dim(gY.Pre)[2]
-  if(ATT.Type=="constant"){
-    lengthb <- 1
-  } else {
-    lengthb <- dim(Post.Time.Basis)[2]
-  }
-  
-  ## Placebo 
-  
-  
   
   GMM.Data <- cbind(rbind(gY.Pre,matrix(0,T1,m)),
                     rbind(Wmat.Pre,Wmat.Post),
@@ -168,7 +89,11 @@ for(gp in 1:6){
   A  <- rep(c(0,1),c(T0,T1))
   delta   <- 0
   
-  ## GMM-1st
+  ##################################
+  # GMM without ridge regularization
+  # Point Estimate
+  ##################################
+  
   Wmat <- rbind(Wmat.Pre,Wmat.Post)
   Y    <- c(Y1.Pre,Y1.Post)
   gY   <- rbind(gY.Pre, matrix(0,T1,m))
@@ -184,15 +109,14 @@ for(gp in 1:6){
   GMM.gamma.naive <- my.inverse(A = t(GW)%*%(GW) )%*%(t(GW)%*%GY)
   GMM.resid.naive <- as.numeric(Y1.Post - (Wmat.Post)%*%GMM.gamma.naive)
   
-  
   GMM.beta.naive      <- mean(GMM.resid.naive)
-  GMM.ATT.naive       <- Post.Time.Basis*GMM.beta.naive 
-  
-  
-  
-  ##########################
-  
+  GMM.ATT.naive       <- Post.Time.Basis*GMM.beta.naive
   GMM.Simple.Coef <- c(GMM.beta.naive,GMM.gamma.naive)
+  
+  ##################################
+  # GMM without ridge regularization
+  # HAC variance
+  ##################################
   
   GRAD <- GMM.Ft.Grad(GMM.Simple.Coef,GMM.Data)
   
@@ -203,10 +127,12 @@ for(gp in 1:6){
   
   SGRAD <- svd(GRAD)
   
-  GMM.Simple.Var <- (SGRAD$v%*%diag(1/SGRAD$d)%*%t(SGRAD$u)) %*% GMM.Simple.VAR.HAC$matrix %*% 
-    t((SGRAD$v%*%diag(1/SGRAD$d)%*%t(SGRAD$u)))/(T0+T1)
+  GMM.Simple.Var <- (SGRAD$v%*%diag(1/SGRAD$d)%*%t(SGRAD$u)) %*% GMM.Simple.VAR.HAC$matrix %*% t((SGRAD$v%*%diag(1/SGRAD$d)%*%t(SGRAD$u)))/(T0+T1)
   
-  #########################
+  ##################################
+  # GMM without ridge regularization
+  # Block bootstrap
+  ##################################
   
   GMM.Boot <- BOOT(round(GMM.Simple.VAR.HAC$bw.B*Boot.Scale),
                    Num.Boot,
@@ -220,13 +146,17 @@ for(gp in 1:6){
     NORM <- GMM.Boot[[vv]]^2
     valid.pos <- which( abs(log(NORM) - median(log(NORM))) <= Boot.valid.thr*IQR(log(NORM)) )
     return((var(GMM.Boot[[vv]][valid.pos])))
+    
   } ))
   
   NORM <- GMM.Boot[[boot.pos]]^2
   valid.pos <- which( abs(log(NORM) - median(log(NORM))) <= Boot.valid.thr*IQR(log(NORM)) )
   GMM.Simple.Var.Boot <- matrix(var(GMM.Boot[[boot.pos]][valid.pos]),1,1)*(Boot.Factor)
   
-  #####################
+  ##################################
+  # GMM with ridge regularization
+  # Point Estimate
+  ##################################
   
   lambda.grid <- seq(-5,0,by=0.2)
   lambda.min  <- lambda.grid[ which.min(sapply(lambda.grid,CV.Lambda)) ]
@@ -235,7 +165,6 @@ for(gp in 1:6){
                          lower= lambda.min - 2,
                          upper= lambda.min + 2)$minimum
   
-  
   GMM.gamma.naive.lambda <- my.inverse(A = t(GW)%*%(GW),
                                        stab.const = ((T.Pre+T.Post)/(T.Pre))^2*10^(lambda.opt),
                                        adjust = F)%*%(t(GW)%*%GY) 
@@ -243,6 +172,12 @@ for(gp in 1:6){
   GMM.beta.naive.lambda      <- mean(GMM.resid.naive.lambda)
   GMM.ATT.naive.lambda       <- Post.Time.Basis*GMM.beta.naive.lambda
   
+  ##################################
+  # GMM with ridge regularization
+  # Point Estimate
+  # HAC variance
+  # Block bootstrap
+  ##################################
   
   GMM.Regular.Coef <- c(GMM.beta.naive.lambda,GMM.gamma.naive.lambda)
   
@@ -261,9 +196,10 @@ for(gp in 1:6){
     GMM.Regular.VAR.HAC$matrix %*% 
     t(ginv(GRAD1) %*% t(ginv(GRAD1)) %*% t(GRAD2))/(T0+T1)
   
-  
-  
-  ###############################
+  ##################################
+  # GMM with ridge regularization
+  # HAC variance
+  ##################################
   
   GMM.Boot.lambda <- BOOT(round(GMM.Regular.VAR.HAC$bw.B*Boot.Scale),
                           Num.Boot,
@@ -277,13 +213,17 @@ for(gp in 1:6){
     NORM <- GMM.Boot.lambda[[vv]]^2
     valid.pos <- which( abs(log(NORM) - median(log(NORM))) <= Boot.valid.thr*IQR(log(NORM)) )
     return((var(GMM.Boot.lambda[[vv]][valid.pos])))
+    
   } ))
   
   NORM <- GMM.Boot.lambda[[boot.pos.lambda]]^2
   valid.pos <- which( abs(log(NORM) - median(log(NORM))) <= Boot.valid.thr*IQR(log(NORM)) )
   GMM.Regular.Var.Boot <- matrix(var(GMM.Boot.lambda[[boot.pos.lambda]][valid.pos]),1,1)*(Boot.Factor)
   
-  ############################################
+  ##################################
+  # OLS
+  # Point Estimate
+  ##################################
   
   OLS.Data <- cbind(rbind(Wmat.Pre,Wmat.Post),
                     c(rep(0,T.Pre),rep(1,T.Post)),
@@ -298,6 +238,11 @@ for(gp in 1:6){
   OLS.beta.naive     <- mean(OLS.resid.naive)
   OLS.ATT.naive      <- Post.Time.Basis*OLS.beta.naive
   
+  ##################################
+  # OLS
+  # HAC variance
+  ##################################
+  
   OLS.Simple.Coef <- c(OLS.beta.naive,OLS.gamma.naive) 
   
   GRAD <- OLS.Ft.Grad(OLS.Simple.Coef,OLS.Data)
@@ -308,11 +253,12 @@ for(gp in 1:6){
   
   SGRAD <- svd(GRAD)
   
-  OLS.Simple.Var <- (SGRAD$v%*%diag(1/SGRAD$d)%*%t(SGRAD$u)) %*% OLS.Simple.VAR.HAC$matrix %*% 
-    t((SGRAD$v%*%diag(1/SGRAD$d)%*%t(SGRAD$u)))/(T0+T1)
+  OLS.Simple.Var <- (SGRAD$v%*%diag(1/SGRAD$d)%*%t(SGRAD$u)) %*% OLS.Simple.VAR.HAC$matrix %*% t((SGRAD$v%*%diag(1/SGRAD$d)%*%t(SGRAD$u)))/(T0+T1)
   
-  
-  
+  ##################################
+  # OLS
+  # Block bootstrap
+  ##################################
   
   OLS.Boot <- BOOT(round(OLS.Simple.VAR.HAC$bw.B*Boot.Scale),
                    Num.Boot,
@@ -321,7 +267,8 @@ for(gp in 1:6){
                    Boot.Factor=Boot.Factor,
                    type="OLS")
   
-  boot.pos <- which.max(sapply(1:length(OLS.Boot),function(vv){
+  boot.pos <- which.max(sapply(1:length(GMM.Boot),function(vv){
+    
     NORM <- OLS.Boot[[vv]]^2
     valid.pos <- which( abs(log(NORM) - median(log(NORM))) <= Boot.valid.thr*IQR(log(NORM)) )
     return((var(OLS.Boot[[vv]][valid.pos])))

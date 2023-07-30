@@ -32,7 +32,7 @@ PP <- function(gp,head=F){
   load(sprintf("Result/GP%d_Data_SPSC_ATT.RData",gp))
   
   ATT.Type <- "constant"
-  LastC <- 0.3
+  LastC <- 0.25
   T1 <- 167
   T0 <- 217
   
@@ -50,9 +50,9 @@ PP <- function(gp,head=F){
   LTY <- c(1,3,1,1) 
    
   
-  MAR <- c(3,4,0.5,0)
+  MAR <- c(1,4,0,0)
   layout(rbind(rbind(4:6,matrix(c(1:3),1,3)),c(7,7,8)), 
-         widths=c(1,1,LastC), heights=c(1,8))
+         widths=c(1,1,LastC), heights=c(0.75,8))
   par(mar=MAR)
   
   PLOT2 <- function(Actual.Time.Date,
@@ -115,7 +115,8 @@ PP <- function(gp,head=F){
          6.0,
          sprintf("Average width = %0.4f",
                  abs(mean(Y0.UB-Y0.LB))),
-         pos=4)
+         pos=4,
+         cex=1.25)
   }
   
   load(sprintf("Conformal/GP%d_Data_SCPI.RData",gp))
@@ -178,31 +179,21 @@ PP <- function(gp,head=F){
   par(mar=MAR*c(0,1,0,1))
   
   plot.new()
-  text(0.5,0.3,"SCPI", cex=1.25)
+  text(0.5,0.5,"SCPI", cex=1.25)
   # plot.new()
   # text(0.5,0.5,"SPSC", cex=1.25)
   plot.new()
-  text(0.5,0.3,"SPSC-Ridge", cex=1.25)
+  text(0.5,0.5,"SPSC-Ridge", cex=1.25)
   plot.new()
   
   mtext("Year",
         side=1,
         outer=T,
-        line=-2,
-        at=(1.1)/(2+LastC),
-        cex=0.95)
+        line=-1.0,
+        at=(1.075)/(2+LastC),
+        cex=0.8)
   
   # dev.off()
-  
-  if(head==T){
-    mtext(sprintf("Donor Pool = Group %s",gp),
-          side=3,
-          outer=T,
-          line=-1.5,
-          at=(1.1)/(2+LastC),
-          cex=1.1)
-  }
-  
   
 }
 
@@ -408,7 +399,7 @@ PPP <- function(gp,head=F){
   mtext("Year",
         side=1,
         outer=T,
-        line=-2,
+        line=-1,
         at=(1.5)/(3+LastC),
         cex=0.95)
   
@@ -418,7 +409,7 @@ PPP <- function(gp,head=F){
     mtext(sprintf("Donor Pool = Group %s",gp),
           side=3,
           outer=T,
-          line=-0.5,
+          line=0,
           at=(1.5)/(3+LastC),
           cex=1.1)
   }
@@ -429,10 +420,15 @@ PPP <- function(gp,head=F){
 
 ## Figure 2 of the main paper
 YFYF <- "Result_Unit13"
+png("Result_GP6.png",height=2.5,width=10,unit="in",res=500)
 PP(6)
+dev.off()
+
+
 
 ## Figure S6 of the main paper
-PPP(6,head=T)
-
-
-
+for(gp in 1:6){
+  png(sprintf("Result_GP%0.1d_Title.png",gp),height=3,width=10,unit="in",res=500)
+  PPP(gp,head=T)
+  dev.off()
+}

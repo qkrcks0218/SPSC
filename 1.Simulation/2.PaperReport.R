@@ -1,9 +1,9 @@
 # Merge Result
 
-# DD  <- c(0,1)
-# BB  <- c(1,2)
-# NN  <- c(2,5,9)
-# TT  <- c(50,100,250,1000)
+DD  <- c(0,1)
+BB  <- c(1,2)
+NN  <- c(2,5,9)
+TT  <- c(50,100,250,1000)
 # 
 # for(dd in DD){
 #   for(bb in BB){
@@ -138,6 +138,8 @@ Result.X.BSECV <- MERGE(2,1,col.bsecv)
 # Constant ATT, no covariate
 ################################
 
+png("Sim_Constant_NoCov.png",height=2.5,width=12.5,unit="in",res=500)
+
 T.t <- dim(Result)[2]/3/3
 Xpos  <- 1:dim(Result)[2] + rep(c(0:2, 4:6, 8:10),each=T.t)
 
@@ -148,14 +150,14 @@ COL <- rep(rep( c(rgb(0,0,0,0.2),
                 each=T.t),3)
 
 PCH <- rep(c(15,17,18,19)[1:T.t],9)
-CEX <- rep(c(1,1,1.5,1)[1:T.t],9)
+CEX <- rep(c(1.5,1.5,2,1.5)[1:T.t],9)
 LTY <- rep(1,dim(Result)[2])
 
 Bias <- apply(Result,2,mean)
 UB   <- apply(Result,2,function(v){quantile(v,0.975)})
 LB   <- apply(Result,2,function(v){quantile(v,0.025)})
 
-YL <- c(floor(min(LB)*4)/4,ceiling(max(UB)*4)/4)
+YL <- c(-1,1.1)
 
 MAR <- c(0.5,3.5,0.5,0.5)
 
@@ -169,7 +171,7 @@ plot.window(xlim=range(Xpos)+c(-0.5,0.5),ylim=YL)
 
 LINE <- function(jj){
   points(Xpos[jj],Bias[jj],col=COL[jj],pch=PCH[jj],cex=CEX[jj])
-  segments(Xpos[jj],LB[jj],Xpos[jj],UB[jj],lty=LTY[jj],col=COL[jj])
+  segments(Xpos[jj],LB[jj],Xpos[jj],UB[jj],lty=LTY[jj],col=COL[jj],lwd=1.5)
   segments(Xpos[jj]-0.2,LB[jj],Xpos[jj]+0.2,LB[jj],col=COL[jj])
   segments(Xpos[jj]-0.2,UB[jj],Xpos[jj]+0.2,UB[jj],col=COL[jj])
 
@@ -181,9 +183,9 @@ abline(v=mean(Xpos[3*T.t+c(3*T.t,3*T.t+1)]),col=1,lty=3)
 axis(2,at=seq(-1,1,by=0.5))
 axis(2,at=0,labels="Bias",tick=F,line=1.25,cex.axis=1.25)
 
-text(mean( Xpos[  1:(3*T.t)] ),     1.25, "d=2",cex=1.5)
-text(mean( Xpos[3*T.t+1:(3*T.t)] ), 1.25, "d=5",cex=1.5)
-text(mean( Xpos[6*T.t+1:(3*T.t)] ), 1.25, "d=9",cex=1.5)
+text(mean( Xpos[  1:(3*T.t)] ),     1.1, "d=2",cex=1.4)
+text(mean( Xpos[3*T.t+1:(3*T.t)] ), 1.1, "d=5",cex=1.4)
+text(mean( Xpos[6*T.t+1:(3*T.t)] ), 1.1, "d=9",cex=1.4)
 
 
 ##
@@ -191,21 +193,21 @@ text(mean( Xpos[6*T.t+1:(3*T.t)] ), 1.25, "d=9",cex=1.5)
 par(mar=MAR*c(1,0,1,0))
 plot.new()
 
-YT <- (seq(95,5,by=-10)/100)[1:5]
+YT <- (seq(99,1,length=10)/100)[1:4]
 XT <- c(0,0.05,0.25,0.3,
         0.6,0.65,0.7)
 
 text(XT[1],YT[1],"Estimator",pos=4,cex=1.25)
-segments(XT[2],YT[2],XT[3],YT[2],col=COL[1],lwd=1.5)
+segments(XT[2],YT[2],XT[3],YT[2],col=COL[1],lwd=2.5)
 text(XT[4],YT[2],"OLS",pos=4)
-segments(XT[2],YT[3],XT[3],YT[3],col=COL[5],lwd=1.5)
+segments(XT[2],YT[3],XT[3],YT[3],col=COL[5],lwd=2.5)
 text(XT[4],YT[3],"SPSC",pos=4)
-segments(XT[2],YT[4],XT[3],YT[4],col=COL[9],lwd=1.5)
+segments(XT[2],YT[4],XT[3],YT[4],col=COL[9],lwd=2.5)
 text(XT[4],YT[4],"SPSC-Ridge",pos=4)
 
 ##
 
-YT <- (seq(95,5,by=-10)/100)[6:10]
+YT <- (seq(99,1,length=10)/100)[5:9]-0.05
 XT <- c(0,0.05,0.25,0.3,
         0,0.15,0.3)
 
@@ -218,6 +220,8 @@ points(XT[6],YT[4],pch=PCH[3],cex=CEX[3])
 text(XT[7],YT[4],expression(T["0"]*"=250"),pos=4)
 points(XT[6],YT[5],pch=PCH[4],cex=CEX[4])
 text(XT[7],YT[5],expression(T["0"]*"=1000"),pos=4)
+
+dev.off()
 
 ################################
 # Figure S1 of the supplement
