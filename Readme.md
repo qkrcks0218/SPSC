@@ -64,4 +64,4 @@ Matias D. Cattaneo, Yingjie Feng & Rocio Titiunik (2021) **Prediction Intervals 
 
 Caroline Fohlin & Zhikun Lu (2021) **How Contagious Was the Panic of 1907? New Evidence from Trust Company Stocks** _AEA Papers and Proceedings_, 111: 514-19 [[link](https://www.aeaweb.org/articles?id=10.1257/pandp.20211097)]
 
-Chan Park & Eric Tchetgen Tchetgen (2023) **Single Proxy Synthetic Control**, _arXiv:_ [[link](https:// "SPSC")]
+Chan Park & Eric Tchetgen Tchetgen (2023) **Single Proxy Synthetic Control**, _arXiv:_ [[link](https:// "SPSC")]# myrepo
