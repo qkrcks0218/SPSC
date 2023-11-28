@@ -24,7 +24,7 @@ for(gp in 1:6){
   
   mgrid <- c(24,24,24,24,10,48)
   m <- mgrid[gp]
-  Num.Boot  <- 10
+  Num.Boot  <- 2
   Boot.valid.thr  <- 10000
   Boot.Scale <- c(0.8,0.9,1,1.1,1.2)
   
@@ -184,7 +184,7 @@ for(gp in 1:6){
   
   GMM.Regular.Coef <- c(GMM.beta.naive.lambda,GMM.gamma.naive.lambda)
   
-  GRAD1 <- GMM.Ft.Grad.lambda(GMM.Regular.Coef,GMM.Data,lambda.opt)
+  # GRAD1 <- GMM.Ft.Grad.lambda(GMM.Regular.Coef,GMM.Data,lambda.opt)
   GRAD2 <- GMM.Ft.Grad(GMM.Regular.Coef,GMM.Data)
   
   GMM.Regular.VAR.HAC <- Meat.HAC(Res.Mat = GMM.Ft(GMM.Regular.Coef, GMM.Data),
@@ -192,12 +192,12 @@ for(gp in 1:6){
                                   beta.pos = 1:lengthb,
                                   bw.type="auto")
   
-  SGRAD1 <- svd(GRAD1)
+  # SGRAD1 <- svd(GRAD1)
   SGRAD2 <- svd(GRAD2)
   
-  GMM.Regular.Var <- (ginv(GRAD1) %*% t(ginv(GRAD1)) %*% t(GRAD2)) %*% 
+  GMM.Regular.Var <- (ginv(GRAD2) %*% t(ginv(GRAD2)) %*% t(GRAD2)) %*% 
     GMM.Regular.VAR.HAC$matrix %*% 
-    t(ginv(GRAD1) %*% t(ginv(GRAD1)) %*% t(GRAD2))/(T0+T1)
+    t(ginv(GRAD2) %*% t(ginv(GRAD2)) %*% t(GRAD2))/(T0+T1)
   
   ##################################
   # GMM with ridge regularization

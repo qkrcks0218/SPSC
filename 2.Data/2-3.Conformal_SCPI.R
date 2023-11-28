@@ -81,27 +81,8 @@ for(gp in 1:6){
     unit.co = 1:N,
     constant = T
   )
-  SCPI <- scpi(SCD)
-  
-  
-  SCPI.Data.ATT <- data.frame(
-    idvar = rep(c(0,1:N),each=(T0+1)),
-    timevar = rep(1:(T0+1),N+1),
-    outcomevar = c(c(Y1.Pre, mean(Y1.Post)),
-                   as.vector(rbind(Wmat.Pre,apply(Wmat.Post,2,mean))))
-  )
-  SCD.ATT <- scdata(
-    df = SCPI.Data.ATT,
-    id.var = "idvar",
-    time.var = "timevar",
-    outcome.var = "outcomevar",
-    period.pre = 1:T0,
-    period.post = T0+1,
-    unit.tr = 0,
-    unit.co = 1:N,
-    constant = T
-  )
-  SCPI.ATT <- scpi(SCD.ATT)
+  SCPI <- scpi(SCD, sims=2000)
+   
   
   save.image(file=sprintf("Conformal/GP%d_Data_SCPI.RData",gp))
   

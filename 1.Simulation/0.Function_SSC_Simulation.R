@@ -76,7 +76,8 @@ Conformal.Prediction <- function(Wmat.Pre,
     }
     
     BS.gY <- bs(Y.Pred.H0[1:T0],df=m,
-                Boundary.knots = range(Y.Pred.H0[1:T0])+c(-2,2))
+                Boundary.knots = range(Y.Pred.H0[1:T0])+SP.Window,
+                intercept=T)
     
     gY.Pred.H0[1:T0,1:m] <- BS.gY
     gY.Pred.H0[T0+1,1:m] <- predict(BS.gY,Y.Pred.H0[1+T0])
@@ -118,24 +119,32 @@ Conformal.Prediction <- function(Wmat.Pre,
   
   CI <- matrix(0,T1,2)
   for(ii in 1:T1){
-    beta.grid <- seq(-10,20,length=3001)
+    
+    beta.grid <- seq(center[ii]-3*bw, center[ii]+3*bw,length=501)
     gsize <- diff(beta.grid)[1]
     PV <- sapply(beta.grid,
                  function(vv){PValue.beta(ii,vv)})
     valid <- which(PV>=0.05)
-    beta.valid <- beta.grid[valid[which(c(1,diff(valid))==1)]]
-    PV.valid <- PV[valid[which(c(1,diff(valid))==1)]]
     
-    BLOCKS <- list()
-    JUMP <- c(0,which(diff(beta.valid)>1.1*gsize),length(beta.valid))
-    for(jindex in 1:(length(JUMP)-1)){
-      BLOCKS[[jindex]] <- (JUMP[jindex]+1):JUMP[jindex+1]
+    if(length(valid)>0){
+      beta.valid <- beta.grid[valid[which(c(1,diff(valid))==1)]]
+      PV.valid <- PV[valid[which(c(1,diff(valid))==1)]]
+      
+      BLOCKS <- list()
+      JUMP <- c(0,which(diff(beta.valid)>1.1*gsize),length(beta.valid))
+      for(jindex in 1:(length(JUMP)-1)){
+        BLOCKS[[jindex]] <- (JUMP[jindex]+1):JUMP[jindex+1]
+      }
+      
+      max.block <- which.max(sapply(1:length(BLOCKS),
+                                    function(vv){ max(PV.valid[BLOCKS[[vv]]]) }))
+      
+      CI[ii,] <- range(beta.valid[BLOCKS[[max.block]]])
+    } else {
+      CI[ii,] <- range(beta.grid)
     }
     
-    max.block <- which.max(sapply(1:length(BLOCKS),
-                                  function(vv){ max(PV.valid[BLOCKS[[vv]]]) }))
     
-    CI[ii,] <- range(beta.valid[BLOCKS[[max.block]]])
   }
   
   
@@ -143,7 +152,7 @@ Conformal.Prediction <- function(Wmat.Pre,
   
 }
 
- 
+
 
 
 Conformal.Prediction.Fast <- function(Wmat.Pre,
@@ -184,7 +193,8 @@ Conformal.Prediction.Fast <- function(Wmat.Pre,
     }
     
     BS.gY <- bs(Y.Pred.H0[1:T0],df=m,
-                Boundary.knots = range(Y.Pred.H0[1:T0])+c(-2,2))
+                Boundary.knots = range(Y.Pred.H0[1:T0])+SP.Window,
+                intercept=T)
     
     gY.Pred.H0[1:T0,1:m] <- BS.gY
     gY.Pred.H0[T0+1,1:m] <- predict(BS.gY,Y.Pred.H0[1+T0])
