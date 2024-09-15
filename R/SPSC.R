@@ -288,15 +288,15 @@ SPSC <- function(
         bul <- beta.grid[(range(consecutive_chunks[[valid.gp]])[2])]
 
         if( min(which(pvalue.vec>=valid.pvalue))>1 ){
-          bll <- beta.grid[(range(which(pvalue.vec>=valid.pvalue))[1]-1)]
+          bll <- beta.grid[which(beta.grid==blu)-1]
         } else {
-          bll <- blu - 10*ASE.ATT[conformal.iter]
+          bll <- blu - 10*window.unit
         }
 
         if( max(which(pvalue.vec>=valid.pvalue))<101 ){
-          buu <- beta.grid[(range(which(pvalue.vec>=valid.pvalue))[2]+1)]
+          buu <- beta.grid[which(beta.grid==bul)+1]
         } else {
-          buu <- bul + 10*ASE.ATT[conformal.iter]
+          buu <- bul + 10*window.unit
         }
 
         beta.grid.narrow <- c(seq(bll,blu,length=51),
