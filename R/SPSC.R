@@ -737,10 +737,12 @@ plot.SPSC <- function(SPSC,                           # SPSC object
   if(PI & !is.null(SPSC$conformal.interval)){
     PI.UB <- SPSC$Y[T0+1:T1] - SPSC$conformal.interval[,1]
     PI.LB <- SPSC$Y[T0+1:T1] - SPSC$conformal.interval[,2]
-    POLYGON <- cbind(c(T0+SPSC$conformal.period,
-                       T0+SPSC$conformal.period[T1:1]),
-                     c(PI.UB[1:T1],
-                       PI.LB[T1:1]))
+    POLYGON <- cbind(c(T0,T0+SPSC$conformal.period,
+                       T0+SPSC$conformal.period[T1:1],T0),
+                     c(SPSC$SC[T0],
+                       PI.UB[1:T1],
+                       PI.LB[T1:1],
+                       SPSC$SC[T0]))
     polygon(POLYGON,
             col=COL.PI,
             border=NA)
