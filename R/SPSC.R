@@ -248,7 +248,13 @@ SPSC <- function(
         beta.point <- GMM.Data.Conformal[T0+conformal.period[conformal.iter],pos.Y] -
           sum(as.numeric(GMM.Data.Conformal[T0+conformal.period[conformal.iter],pos.W])*theta.estimate$gamma)
 
-        beta.grid <- beta.point + seq(-conformal.window,conformal.window,length=101)*ASE.ATT[conformal.iter]
+        window.unit <- ASE.ATT[conformal.iter]
+
+        if(is.na(window.unit)){
+          window.unit <- sd(RESULT$Y - RESULT$SC)
+        }
+
+        beta.grid <- beta.point + seq(-conformal.window,conformal.window,length=101)*window.unit
 
         pvalue.vec <-
           sapply(1:length(beta.grid),
