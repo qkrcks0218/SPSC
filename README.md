@@ -170,4 +170,4 @@ cbind(SPSC.Smoking$ATT - 1.96*SPSC.Smoking$BSE.ATT,
       SPSC.Smoking$ATT + 1.96*SPSC.Smoking$BSE.ATT)
 
 ## Graphical summary
-plot(SPSC.Smoking)
+plot(SPSC.Smoking)# SPSC
