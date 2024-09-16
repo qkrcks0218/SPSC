@@ -705,7 +705,7 @@ make.matrix <- function(vv,TT){
   matrix( vv, TT, ncol(vv)*nrow(vv)/TT )
 }
 
-plot.SPSC <- function(SPSC,                           # SPSC object
+plot.SPSC <- function(spsc,                           # SPSC object
                       COL=c(1,2),                     # Y/SC color
                       LTY=c(1,2),                     # Y/SC line type
                       PI=T,                           # draw prediction interval
@@ -713,14 +713,14 @@ plot.SPSC <- function(SPSC,                           # SPSC object
                       caption=T,                      # Denote variables
                       ...
 ){
-  Tt <- length(SPSC$Y)
-  T1 <- length(SPSC$ATT)
+  Tt <- length(spsc$Y)
+  T1 <- length(spsc$ATT)
   T0 <- Tt-T1
-  Yvec <- c(SPSC$Y, SPSC$SC)
+  Yvec <- c(spsc$Y, spsc$SC)
   YL <- range(Yvec)+c(-0.1,0.1)*sd(Yvec)
 
   plot(1:Tt,
-       SPSC$Y,
+       spsc$Y,
        type='l',
        col=COL[1],
        lty=LTY[1],
@@ -729,32 +729,32 @@ plot.SPSC <- function(SPSC,                           # SPSC object
        xlim=c(0,Tt+1),
        ylim=YL) # observed Y
   points(1:Tt,
-         SPSC$SC,
+         spsc$SC,
          type='l',
          col=COL[2],
          lty=LTY[2]) # SC = synthetic control
 
-  if(PI & !is.null(SPSC$conformal.interval)){
-    PI.UB <- SPSC$Y[T0+1:T1] - SPSC$conformal.interval[,1]
-    PI.LB <- SPSC$Y[T0+1:T1] - SPSC$conformal.interval[,2]
-    POLYGON <- cbind(c(T0,T0+SPSC$conformal.period,
-                       T0+SPSC$conformal.period[T1:1],T0),
-                     c(SPSC$SC[T0],
+  if(PI & !is.null(spsc$conformal.interval)){
+    PI.UB <- spsc$Y[T0+1:T1] - spsc$conformal.interval[,1]
+    PI.LB <- spsc$Y[T0+1:T1] - spsc$conformal.interval[,2]
+    POLYGON <- cbind(c(T0,T0+spsc$conformal.period,
+                       T0+spsc$conformal.period[T1:1],T0),
+                     c(spsc$SC[T0],
                        PI.UB[1:T1],
                        PI.LB[T1:1],
-                       SPSC$SC[T0]))
+                       spsc$SC[T0]))
     polygon(POLYGON,
             col=COL.PI,
             border=NA)
   }
 
   if(caption){
-    if(SPSC$Y[Tt]>SPSC$SC[Tt]){
-      text(Tt+1,SPSC$Y[Tt],"Y",col=COL[1],pos=3)
-      text(Tt+1,SPSC$SC[Tt],"SC",col=COL[2],pos=1)
+    if(spsc$Y[Tt]>spsc$SC[Tt]){
+      text(Tt+1,spsc$Y[Tt],"Y",col=COL[1],pos=3)
+      text(Tt+1,spsc$SC[Tt],"SC",col=COL[2],pos=1)
     } else {
-      text(Tt+1,SPSC$Y[Tt],"Y",col=COL[1],pos=1)
-      text(Tt+1,SPSC$SC[Tt],"SC",col=COL[2],pos=3)
+      text(Tt+1,spsc$Y[Tt],"Y",col=COL[1],pos=1)
+      text(Tt+1,spsc$SC[Tt],"SC",col=COL[2],pos=3)
     }
   }
 

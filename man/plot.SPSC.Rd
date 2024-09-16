@@ -4,7 +4,7 @@
 \description{
   Plot A Single Proxy Synthetic Control Object}
 \usage{
-plot(SPSC,                           # SPSC object
+plot(spsc,                           # SPSC object
      COL     = c(1,2),               # Y/SC color
      LTY     = c(1,2),               # Y/SC line type
      PI      = TRUE,                 # draw prediction interval
@@ -13,7 +13,7 @@ plot(SPSC,                           # SPSC object
      ...)
 }
 \arguments{
-  \item{SPSC}{A SPSC object obtained from \code{SPSC}.}
+  \item{spsc}{A SPSC object obtained from \code{SPSC}.}
   \item{COL}{\emph{(Optional)} A vector of colors for the observed outcome and synthetic control, respectively. The default is \code{COL = c(1,2)}, i.e. black and red.}
   \item{LTY}{\emph{(Optional)} A vector of line types for the observed outcome and synthetic control, respectively. The default is \code{LTY = c(1,2)}, i.e. solid and dashed lines.}
   \item{PI}{\emph{(Optional)} A logical input \code{(TRUE/FALSE)} to draw prediction intervals. The default is \code{PI = TRUE}.}
