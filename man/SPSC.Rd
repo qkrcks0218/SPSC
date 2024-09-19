@@ -10,7 +10,7 @@ SPSC(
     W.Pre,                                               # matrix of W (T0 x N) in the post-trt period
     W.Post,                                              # matrix of W (T1 x N) in the post-trt period
     detrend = TRUE,                                      # detrend Y0
-    detrend.ft = function(t){matrix(c(1,t),1,2)},        # detrend basis
+    detrend.ft = function(t){Spline.Trend(t,T0,df=5)},   # detrend basis
     Y.basis = function(y){matrix(c(y),1,1)},             # basis function of Y0
     att.ft = function(t){matrix(c(1),1,1)},              # ATT basis
     lambda.type = "cv",                                  # how to select lambda
@@ -31,7 +31,7 @@ SPSC(
   \item{W.Pre}{A matrix of \eqn{N} donors in the pre-treatment period. The dimension is \eqn{T_0 \times N}.}
   \item{W.Post}{A matrix of \eqn{N} donors in the post-treatment period. The dimension is \eqn{T_1 \times N}.}
   \item{detrend}{\emph{(Optional)} A logical input \code{(TRUE/FALSE)} to detrend the time series. The default is \code{detrend = TRUE}.}
-  \item{detrend.ft}{\emph{(Optional)} Basis functions used in detrending. The default is \code{detrend.ft = function(t){matrix(c(1,t),1,2)}}. The function must return a row matrix.}
+  \item{detrend.ft}{\emph{(Optional)} Basis functions used in detrending. The default is \code{detrend.ft = function(t){Spline.Trend(t,T0,df=5)}}, which is the 5-dimensional B-spline basis. The function must return a row matrix, e.g., \code{detrend.ft = function(t){matrix(c(1,t/T0),1,2)}}.}
   \item{Y.basis}{\emph{(Optional)} Basis functions used in synthetic control. The default is \code{Y.basis = function(y){matrix(c(y),1,1)}}. The function must return a row matrix.}
   \item{att.ft}{\emph{(Optional)} Basis functions used in treatment effect estimation. The default is \code{att.ft = function(t){matrix(c(1),1,1)}}. The function must return a row matrix.}
   \item{lambda.type}{\emph{(Optional)} A option to how to determine the regularization parameter \eqn{\lambda}. If \code{lambda.type = "cv"}, \eqn{\lambda} is selected from bootstrap among the candidates specified in \code{lambda.grid}. If \code{lambda.type = "fix"}, \eqn{\lambda} is fixed as the value specified in \code{lambda.value}. The default is \code{lambda.type = "cv"}.}
@@ -149,7 +149,7 @@ SPSC.Detrend <- SPSC(Y.Pre              = Y1.Pre,
                      W.Pre              = Dmat.Pre,
                      W.Post             = Dmat.Post,
                      detrend            = TRUE,
-                     detrend.ft         = function(t){matrix(c(1,t),1,2)},
+                     detrend.ft         = function(t){Spline.Trend(t,T0,df=5)},
                      Y.basis            = function(y){matrix(c(y),1,1)},
                      att.ft             = function(t){matrix(c(1),1,1)},
                      lambda.type        = "cv",
@@ -204,7 +204,7 @@ SPSC.Smoking <- SPSC(Y.Pre              = Y.Pre,
                      W.Pre              = D.Pre,
                      W.Post             = D.Post,
                      detrend            = TRUE,
-                     detrend.ft         = function(t){matrix(c(1,t),1,2)},
+                     detrend.ft         = function(t){Spline.Trend(t,T0,df=5)},
                      Y.basis            = function(y){matrix(c(y),1,1)},
                      att.ft             = function(t){matrix(c(1,t),1,2)},
                      lambda.type        = "cv",
