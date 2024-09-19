@@ -706,8 +706,8 @@ make.matrix <- function(vv,TT){
 }
 
 Spline.Trend <- function(t,T0,df=5){
-  MAT <- splines::bs(1:(T0+1),df=df,intercept=F)
-  return(matrix(MAT[min(t,T0+1),],1,df))
+  MAT <- splines::bs(1:(T0+1),df=df,intercept=T)
+  return(matrix(MAT[min(t,T0+1),],1,ncol(MAT)))
 }
 
 
