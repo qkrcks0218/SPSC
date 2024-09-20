@@ -284,16 +284,18 @@ SPSC <- function(
                                    51%in%consecutive_chunks[[tt]]
                                  }))
 
-        blu <- beta.grid[(range(consecutive_chunks[[valid.gp]])[1])]
-        bul <- beta.grid[(range(consecutive_chunks[[valid.gp]])[2])]
+        real.beta.grid <- consecutive_chunks[[valid.gp]]
 
-        if( min(which(pvalue.vec>=valid.pvalue))>1 ){
+        blu <- beta.grid[min(real.beta.grid)]
+        bul <- beta.grid[max(real.beta.grid)]
+
+        if( min(real.beta.grid)>1 ){
           bll <- beta.grid[which(beta.grid==blu)-1]
         } else {
           bll <- blu - 10*window.unit
         }
 
-        if( max(which(pvalue.vec>=valid.pvalue))<101 ){
+        if( max(real.beta.grid)<101 ){
           buu <- beta.grid[which(beta.grid==bul)+1]
         } else {
           buu <- bul + 10*window.unit
