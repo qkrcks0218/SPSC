@@ -678,7 +678,7 @@ CV.lambda <- function(GMM.detrend.Data,
     CV.Residual[jj] <-  as.numeric((Y[jj] - (t(as.numeric(GMM.detrend.Data[jj,posW]))%*%gamma.loo)))
   }
 
-  return(log(mean(CV.Residual)^2))
+  return(log(mean(CV.Residual^2)))
 }
 
 Calculate.PValue <- function(Residual,
