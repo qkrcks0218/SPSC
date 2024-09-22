@@ -56,6 +56,7 @@ SPSC(
   \item{conformal.cover}{A time series of indicators of whether prediction intervals cover the true error-prone treatment effect from period \eqn{T_0+1} to \eqn{T_0+T_1}.}
   \item{conformal.interval}{A time series of prediction intervals from period \eqn{T_0+1} to \eqn{T_0+T_1}.}
   \item{lambda}{An exponent of the regularization parameter, i.e. \eqn{\code{lambda}=\log_{10}(\text{regularization parameter})}}
+  \item{trend}{A time trend spanned by the \code{detrend.ft} function.}
   \item{detrend}{\code{detrend} input value}
   \item{detrend.ft}{\code{detrend.ft} input value}
   \item{Y.basis}{\code{Y.basis} input value}
