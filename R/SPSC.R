@@ -112,6 +112,8 @@ SPSC <- function(
   pos.W <- which(substr(colnames(GMM.Data),1,1)=="W")
   pos.Y <- which(substr(colnames(GMM.Data),1,1)=="Y")
 
+  GMM.Data[,pos.D] <- GMM.Data[,pos.D]*T0
+
   ###### effect calculate
 
   theta.estimate <- SPSC.Effect(GMM.Data,
@@ -335,6 +337,9 @@ SPSC <- function(
 
   RESULT$detrend <- detrend
   RESULT$detrend.ft <- detrend.ft
+  if(detrend){
+    RESULT$trend <- as.numeric(as.matrix(GMM.Data[,pos.D])%*%theta.estimate$detrend)
+  }
   RESULT$Y.basis <- Y.basis
   RESULT$att.ft <- att.ft
   RESULT$bootstrap.num <- bootstrap.num
