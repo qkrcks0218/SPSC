@@ -116,8 +116,14 @@ True.ATT
 
 ## Graphical summary
 plot.SPSC(SPSC.Detrend)
+```
+```{figure} ./Simulation.png
 
-
+```
+---
+height: 200px
+---
+```{r}
 ################################################################################
 # Toy Example of California Smoking Example
 ################################################################################
@@ -171,3 +177,4 @@ cbind(SPSC.Smoking$ATT - 1.96*SPSC.Smoking$BSE.ATT,
 
 ## Graphical summary
 plot.SPSC(SPSC.Smoking)
+```
