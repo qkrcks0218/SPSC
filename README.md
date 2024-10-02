@@ -1,3 +1,8 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
 # SPSC
 
 This Github repository contains SPSC R package. This package is currently in beta.
@@ -118,11 +123,10 @@ True.ATT
 plot.SPSC(SPSC.Detrend)
 ```
 ```{figure} Simulation.png
-
-```
 ---
 height: 200px
 ---
+```
 ```{r}
 ################################################################################
 # Toy Example of California Smoking Example
