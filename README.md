@@ -118,7 +118,7 @@ True.ATT
 plot.SPSC(SPSC.Detrend, caption.position="topleft")
 ```
 
-![Alt text](./images/Simulation.png?raw=true "Simulation.png")
+![Alt text](./images/Simulation_F.png?raw=true "Simulation_F.png")
 
 ```{r}
 ################################################################################
@@ -176,4 +176,4 @@ cbind(SPSC.Smoking$ATT - 1.96*SPSC.Smoking$BSE.ATT,
 plot.SPSC(SPSC.Smoking, caption.position="bottomleft")
 ```
 
-![Alt text](./images/California.png?raw=true "California.png")
+![Alt text](./images/California_F.png?raw=true "California_F.png")
