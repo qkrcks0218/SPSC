@@ -10,6 +10,7 @@ plot(spsc,                           # SPSC object
      PI      = TRUE,                 # draw prediction interval
      COL.PI  = rgb(1,0,0,0.2),       # prediction interval color
      caption = TRUE,                 # Denote variables
+
      ...)
 }
 \arguments{
@@ -19,6 +20,7 @@ plot(spsc,                           # SPSC object
   \item{PI}{\emph{(Optional)} A logical input \code{(TRUE/FALSE)} to draw prediction intervals. The default is \code{PI = TRUE}.}
   \item{COL.PI}{\emph{(Optional)} Color for the prediction interval. The default is \code{COL.PI = rgb(1,0,0,0.2)}, i.e. transparent red.}
   \item{caption}{\emph{(Optional)} A logical input \code{(TRUE/FALSE)} to denote the observed outcome and synthetic control. The default is \code{caption = TRUE}.}
+  \item{caption.position}{\emph{(Optional)} Caption position taking a value from \code{"topleft","topright","bottomleft","bottomright"}. The default is \code{caption.position = "topleft"}.}
 }
 \references{
   Chan Park & Eric Tchetgen Tchetgen (2023) \strong{Single Proxy Synthetic Control}, \emph{arXiv} \href{https://arxiv.org/abs/2307.16353}{[Link]}
@@ -125,7 +127,7 @@ cbind(SPSC.Detrend$ATT - 1.96*SPSC.Detrend$ASE.ATT,
 True.ATT
 
 ## Graphical summary
-plot.SPSC(SPSC.Detrend)
+plot.SPSC(SPSC.Detrend, caption.position="topleft")
 
 
 ################################################################################
@@ -181,5 +183,5 @@ cbind(SPSC.Smoking$ATT - 1.96*SPSC.Smoking$BSE.ATT,
       SPSC.Smoking$ATT + 1.96*SPSC.Smoking$BSE.ATT)
 
 ## Graphical summary
-plot.SPSC(SPSC.Smoking)
+plot.SPSC(SPSC.Smoking, caption.position="bottomleft")
 }

@@ -170,7 +170,7 @@ cbind(SPSC.Detrend$ATT - 1.96*SPSC.Detrend$ASE.ATT,
 True.ATT
 
 ## Graphical summary
-plot.SPSC(SPSC.Detrend)
+plot.SPSC(SPSC.Detrend, caption.position="topleft")
 
 
 ################################################################################
@@ -226,5 +226,5 @@ cbind(SPSC.Smoking$ATT - 1.96*SPSC.Smoking$BSE.ATT,
       SPSC.Smoking$ATT + 1.96*SPSC.Smoking$BSE.ATT)
 
 ## Graphical summary
-plot.SPSC(SPSC.Smoking)
+plot.SPSC(SPSC.Smoking, caption.position="bottomleft")
 }

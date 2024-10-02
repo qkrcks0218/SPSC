@@ -891,6 +891,7 @@ plot.SPSC <- function(spsc,                           # SPSC object
                       PI=T,                           # draw prediction interval
                       COL.PI=rgb(1,0,0,0.2),          # prediction interval color
                       caption=T,                      # Denote variables
+                      caption.position="topleft",     # Caption position
                       ...
 ){
   Tt <- length(spsc$Y)
@@ -914,7 +915,11 @@ plot.SPSC <- function(spsc,                           # SPSC object
          col=COL[2],
          lty=LTY[2]) # SC = synthetic control
 
+  PI.exist <- F
+
   if(PI & !is.null(spsc$conformal.interval)){
+    PI.exist <- T
+
     T1.PI <- nrow(spsc$conformal.interval)
 
     PI.UB <- spsc$Y[T0+spsc$conformal.period] - spsc$conformal.interval[,1]
@@ -931,13 +936,69 @@ plot.SPSC <- function(spsc,                           # SPSC object
   }
 
   if(caption){
-    if(spsc$Y[Tt]>spsc$SC[Tt]){
-      text(Tt+1,spsc$Y[Tt],"Y",col=COL[1],pos=3)
-      text(Tt+1,spsc$SC[Tt],"SC",col=COL[2],pos=1)
-    } else {
-      text(Tt+1,spsc$Y[Tt],"Y",col=COL[1],pos=1)
-      text(Tt+1,spsc$SC[Tt],"SC",col=COL[2],pos=3)
+    if(caption.position=="topleft"){
+      X.pos <- cbind(c(0,0,Tt/10*0.5),
+                     c(Tt/10,Tt/10,Tt/10))
+      X.pos.text <- X.pos[,2]+1/Tt
+
+      Y.pos <- c(sum(YL*c(0.1,0.9)),
+                 sum(YL*c(0.2,0.8)),
+                 sum(YL*c(0.3,0.7)))
+      pos.text <- 4
     }
+
+    if(caption.position=="bottomleft"){
+      X.pos <- cbind(c(0,0,Tt/10*0.5),
+                     c(Tt/10,Tt/10,Tt/10))
+      X.pos.text <- X.pos[,2]+1/Tt
+
+      Y.pos <- c(sum(YL*c(0.7,0.3)),
+                 sum(YL*c(0.8,0.2)),
+                 sum(YL*c(0.9,0.1)))
+      pos.text <- 4
+    }
+
+    if(caption.position=="topright"){
+      X.pos <- cbind(c(Tt,Tt,Tt*0.95),
+                     c(Tt*0.9,Tt*0.9,Tt*0.9))
+      X.pos.text <- X.pos[,2]-1/Tt
+
+      Y.pos <- c(sum(YL*c(0.1,0.9)),
+                 sum(YL*c(0.2,0.8)),
+                 sum(YL*c(0.3,0.7)))
+      pos.text <- 2
+    }
+
+    if(caption.position=="bottomright"){
+      X.pos <- cbind(c(Tt,Tt,Tt*0.95),
+                     c(Tt*0.9,Tt*0.9,Tt*0.9))
+      X.pos.text <- X.pos[,2]-1/Tt
+
+      Y.pos <- c(sum(YL*c(0.7,0.3)),
+                 sum(YL*c(0.8,0.2)),
+                 sum(YL*c(0.9,0.1)))
+      pos.text <- 2
+    }
+
+    segments(X.pos[1,1],Y.pos[1],
+             X.pos[1,2],Y.pos[1],
+             col=COL[1],
+             lty=LTY[1])
+    text(X.pos.text[1],Y.pos[1],"Y",pos=pos.text)
+
+    segments(X.pos[2,1],Y.pos[2],
+             X.pos[2,2],Y.pos[2],
+             col=COL[2],
+             lty=LTY[2])
+    text(X.pos.text[2],Y.pos[2],"SC",pos=pos.text)
+    if(PI.exist){
+      points(X.pos[3,1],Y.pos[3],
+             col=COL.PI,
+             cex=2,
+             pch=15)
+      text(X.pos.text[3],Y.pos[3],"95% PI",pos=pos.text)
+    }
+
   }
 
 
