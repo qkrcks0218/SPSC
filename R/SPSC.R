@@ -983,13 +983,15 @@ plot.SPSC <- function(spsc,                           # SPSC object
     segments(X.pos[1,1],Y.pos[1],
              X.pos[1,2],Y.pos[1],
              col=COL[1],
-             lty=LTY[1])
+             lty=LTY[1],
+             lwd=2)
     text(X.pos.text[1],Y.pos[1],"Y",pos=pos.text)
 
     segments(X.pos[2,1],Y.pos[2],
              X.pos[2,2],Y.pos[2],
              col=COL[2],
-             lty=LTY[2])
+             lty=LTY[2],
+             lwd=2)
     text(X.pos.text[2],Y.pos[2],"SC",pos=pos.text)
     if(PI.exist){
       points(X.pos[3,1],Y.pos[3],
