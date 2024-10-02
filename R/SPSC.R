@@ -131,64 +131,87 @@ SPSC <- function(
 
   ###### avar
 
-  Grad.Psi <- Grad.Psi.Aver.Ft(theta.estimate, GMM.Data, Y.basis)
-  Psi <- Psi.Ft(theta.estimate, GMM.Data, Y.basis)
+  if(T1>1){
+    if(detrend){
+      Psi <- Psi.Ft(theta.estimate, GMM.Data, Y.basis)
+      Sigma <- HAC.Meat(Psi,dim.detrend+dim.gamma+1:dim.beta,T0,T1)
+      Scale <- sqrt( mean( diag(Sigma$matrix)[substr(colnames(Sigma$matrix),1,3)=="GYb"] ) /
+                       mean( diag(Sigma$matrix)[substr(colnames(Sigma$matrix),1,3)=="YDT"] ) )
 
-  if(detrend){
-    Sigma <- HAC.Meat(Psi,dim.detrend+dim.gamma+1:dim.beta,T0,T1)
-    Scale <- sqrt( mean( diag(Sigma$matrix)[substr(colnames(Sigma$matrix),1,3)=="GYb"] ) /
-                     mean( diag(Sigma$matrix)[substr(colnames(Sigma$matrix),1,3)=="YDT"] ) )
+      if(is.na(Scale)){
+        Scale <- 1
+      }
 
-    if(is.na(Scale)){
-      Scale <- 1
+      GMM.Data[,pos.D] <- GMM.Data[,pos.D] * Scale
+
+      theta.estimate <- SPSC.Effect(GMM.Data,
+                                    Y.basis,
+                                    lambda.type,
+                                    lambda.value,
+                                    lambda.grid,
+                                    calculate.beta=TRUE)
+
+      if(detrend){
+        dim.detrend <- length(theta.estimate$detrend)
+      }
+      dim.gamma <- length(theta.estimate$gamma)
+      dim.beta <- length(theta.estimate$beta)
+      lambda.opt <- theta.estimate$lambda
+      Grad.Psi <- Grad.Psi.Aver.Ft(theta.estimate, GMM.Data, Y.basis)
+      Psi <- Psi.Ft(theta.estimate, GMM.Data, Y.basis)
+      Sigma <- HAC.Meat(Psi,dim.detrend+dim.gamma+1:dim.beta,T0,T1)
+    } else {
+      Grad.Psi <- Grad.Psi.Aver.Ft(theta.estimate, GMM.Data, Y.basis)
+      Psi <- Psi.Ft(theta.estimate, GMM.Data, Y.basis)
+      Sigma <- HAC.Meat(Psi,dim.gamma+1:dim.beta,T0,T1)
     }
-
-    GMM.Data[,pos.D] <- GMM.Data[,pos.D] * Scale
-
-    theta.estimate <- SPSC.Effect(GMM.Data,
-                                  Y.basis,
-                                  lambda.type,
-                                  lambda.value,
-                                  lambda.grid,
-                                  calculate.beta=TRUE)
 
     if(detrend){
-      dim.detrend <- length(theta.estimate$detrend)
+      Grad.lambda <- matrix(0,dim.detrend+dim.gamma+dim.beta,dim.detrend+dim.gamma+dim.beta)
+      Grad.lambda[dim.detrend+1:dim.gamma,
+                  dim.detrend+1:dim.gamma] <- diag(rep(1,dim.gamma))
+    } else {
+      Grad.lambda <- matrix(0,
+                            dim.gamma+dim.beta,dim.gamma+dim.beta)
+      Grad.lambda[1:dim.gamma,
+                  1:dim.gamma] <- diag(rep(1,dim.gamma))
     }
-    dim.gamma <- length(theta.estimate$gamma)
-    dim.beta <- length(theta.estimate$beta)
-    lambda.opt <- theta.estimate$lambda
+
+    S1 <- t(Grad.Psi)%*%(Grad.Psi) + 10^(theta.estimate$lambda) * Grad.lambda
+    S2 <- t(Grad.Psi)%*%(Sigma$matrix)%*%(Grad.Psi)
+    AVAR <- MASS::ginv(S1)%*%(S2)%*%t(MASS::ginv(S1))/Tt
+
+    # S1 <- MASS::ginv(Grad.Psi)
+    # AVAR <- (S1)%*%(Sigma$matrix)%*%t(S1)/Tt
+
+    if(detrend){
+      AVAR.beta <- AVAR[dim.detrend+dim.gamma+1:dim.beta,dim.detrend+dim.gamma+1:dim.beta]
+    } else {
+      AVAR.beta <- AVAR[dim.gamma+1:dim.beta,dim.gamma+1:dim.beta]
+    }
+
+    ATT <- as.numeric( matrix(as.matrix(GMM.Data[T0+1:T1,pos.B]),T1,dim.beta)%*%theta.estimate$beta )
+    AVAR.ATT <- diag( (matrix(as.matrix(GMM.Data[T0+1:T1,pos.B]),T1,dim.beta))%*%AVAR.beta%*%t((matrix(as.matrix(GMM.Data[T0+1:T1,pos.B]),T1,dim.beta))) )
+    ASE.ATT <- sqrt(AVAR.ATT)
+  } else {
     Grad.Psi <- Grad.Psi.Aver.Ft(theta.estimate, GMM.Data, Y.basis)
     Psi <- Psi.Ft(theta.estimate, GMM.Data, Y.basis)
-    Sigma <- HAC.Meat(Psi,dim.detrend+dim.gamma+1:dim.beta,T0,T1)
-  } else {
-    Sigma <- HAC.Meat(Psi,dim.gamma+1:dim.beta,T0,T1)
+
+    if(detrend){
+      Grad.lambda <- matrix(0,dim.detrend+dim.gamma+dim.beta,dim.detrend+dim.gamma+dim.beta)
+      Grad.lambda[dim.detrend+1:dim.gamma,
+                  dim.detrend+1:dim.gamma] <- diag(rep(1,dim.gamma))
+    } else {
+      Grad.lambda <- matrix(0,
+                            dim.gamma+dim.beta,dim.gamma+dim.beta)
+      Grad.lambda[1:dim.gamma,
+                  1:dim.gamma] <- diag(rep(1,dim.gamma))
+    }
+
+    ATT <- as.numeric( matrix(as.matrix(GMM.Data[T0+1:T1,pos.B]),T1,dim.beta)%*%theta.estimate$beta )
+    AVAR.ATT <- NA
+    ASE.ATT <- NA
   }
-
-  if(detrend){
-    Grad.lambda <- matrix(0,dim.detrend+dim.gamma+dim.beta,dim.detrend+dim.gamma+dim.beta)
-    Grad.lambda[dim.detrend+1:dim.gamma,
-                dim.detrend+1:dim.gamma] <- diag(rep(1,dim.gamma))
-  } else {
-    Grad.lambda <- matrix(0,
-                          dim.gamma+dim.beta,dim.gamma+dim.beta)
-    Grad.lambda[1:dim.gamma,
-                1:dim.gamma] <- diag(rep(1,dim.gamma))
-  }
-
-  S1 <- t(Grad.Psi)%*%(Grad.Psi) + (Tt/T0)^2*10^(theta.estimate$lambda) * Grad.lambda
-  S2 <- t(Grad.Psi)%*%(Sigma$matrix)%*%(Grad.Psi)
-
-  AVAR <- MASS::ginv(S1)%*%S2%*%t(MASS::ginv(S1))/Tt
-  if(detrend){
-    AVAR.beta <- AVAR[dim.detrend+dim.gamma+1:dim.beta,dim.detrend+dim.gamma+1:dim.beta]
-  } else {
-    AVAR.beta <- AVAR[dim.gamma+1:dim.beta,dim.gamma+1:dim.beta]
-  }
-
-  ATT <- as.numeric( matrix(as.matrix(GMM.Data[T0+1:T1,pos.B]),T1,dim.beta)%*%theta.estimate$beta )
-  AVAR.ATT <- diag( (matrix(as.matrix(GMM.Data[T0+1:T1,pos.B]),T1,dim.beta))%*%AVAR.beta%*%t((matrix(as.matrix(GMM.Data[T0+1:T1,pos.B]),T1,dim.beta))) )
-  ASE.ATT <- sqrt(AVAR.ATT)
 
   RESULT <- list()
 
@@ -459,12 +482,12 @@ SPSC.Effect <- function(GMM.Data,
   if(length(pos.detrend.G)>1){
     GY <- apply(GMM.detrend.Data$Y[1:T0] * GMM.detrend.Data[1:T0,pos.detrend.G],2,mean)
     GW <- as.matrix(sapply(1:N,function(nn){apply(GMM.detrend.Data[1:T0,pos.detrend.W[nn]]*GMM.detrend.Data[1:T0,pos.detrend.G],2,mean)}))
-    gamma.estimate <- as.numeric( MASS::ginv(t(GW)%*%(GW) + (Tt/T0)^2*diag(rep(10^(lambda.opt),N)))%*%(t(GW)%*%GY) )
+    gamma.estimate <- as.numeric( MASS::ginv(t(GW)%*%(GW) + diag(rep(10^(lambda.opt),N)))%*%(t(GW)%*%GY) )
   } else {
     GY <- mean(GMM.detrend.Data$Y[1:T0] * GMM.detrend.Data[1:T0,pos.detrend.G])
     GW <- as.numeric( apply(GMM.detrend.Data[1:T0,pos.detrend.W] * GMM.detrend.Data[1:T0,pos.detrend.G],2,mean) )
     GW <- matrix(GW,1,length(GW))
-    gamma.estimate <- as.numeric( MASS::ginv(t(GW)%*%(GW) + (Tt/T0)^2*diag(rep(10^(lambda.opt),N)))%*%(t(GW)%*%GY) )
+    gamma.estimate <- as.numeric( MASS::ginv(t(GW)%*%(GW) + diag(rep(10^(lambda.opt),N)))%*%(t(GW)%*%GY) )
   }
 
   ###### beta
@@ -536,29 +559,52 @@ HAC.Meat <- function(Psi,
   alpha2 <- sum( 4*rho.Vec^2*sigma2.Vec^2/(1-rho.Vec)^8 )/
     sum( sigma2.Vec^2/(1-rho.Vec)^4 )
 
-  opt.BW <- 1.3221*(alpha2*(T1+T0))^(0.2)
+  opt.QS.BW <- 1.3221*(alpha2*(T1+T0))^(0.2)
 
   opt.Bartlett.BW <- 1.1447*(alpha1*(T1+T0))^(1/3)
 
-  Meat.Weight.F <- rep(0,T0+T1)
-  Meat.Weight.F[1] <- 1
+  Meat.Weight.QS <- rep(0,T0+T1)
+  Meat.Weight.QS[1] <- 1
   for(tt in 2:(T0+T1)){
-    z <- 6*pi/5*(tt-1)/opt.BW
-    Meat.Weight.F[tt] <- 3/(z^2)*(sin(z)/z - cos(z))
+    z <- 6*pi/5*(tt-1)/opt.QS.BW
+    Meat.Weight.QS[tt] <- 3/(z^2)*(sin(z)/z - cos(z))
   }
 
-  Meat.Meat <- matrix(0,dim(Psi)[2],dim(Psi)[2])
+  Meat.Weight.Bartlett <- rep(0,T0+T1)
+  Meat.Weight.Bartlett[1] <- 1
+  for(tt in 2:(T0+T1)){
+    z <- (tt-1)/opt.QS.BW
+    Meat.Weight.Bartlett[tt] <- (1-abs(z))*as.numeric(abs(z)<=1)
+  }
+
+  Meat.Meat.B <- matrix(0,dim(Psi)[2],dim(Psi)[2])
   for(ll in 0:(T0+T1-1)){
-    Meat.Meat <- Meat.Meat+CROSS[[ll+1]]*Meat.Weight.F[ll+1]
+    Meat.Meat.B <- Meat.Meat.B+CROSS[[ll+1]]*Meat.Weight.Bartlett[ll+1]
   }
 
-  Meat.Meat <- Meat.Meat/(T0+T1)
-  Meat.Simple <- Meat.Meat
+  Meat.Meat.QS <- matrix(0,dim(Psi)[2],dim(Psi)[2])
+  for(ll in 0:(T0+T1-1)){
+    Meat.Meat.QS <- Meat.Meat.QS+CROSS[[ll+1]]*Meat.Weight.QS[ll+1]
+  }
+
+  Meat.Meat.B <- Meat.Meat.B/(T0+T1)
+  Meat.Meat.QS <- Meat.Meat.QS/(T0+T1)
+
+  pos.beta <- which(substr(colnames(Meat.Meat.B),1,4)=="Beta")
+
+  B.eigen <- mean(eigen(Meat.Meat.B[pos.beta,pos.beta])$values)
+  QS.eigen <- mean(eigen(Meat.Meat.QS[pos.beta,pos.beta])$values)
+
+  if(B.eigen>QS.eigen){
+    Meat.Simple <- Meat.Meat.B
+  } else {
+    Meat.Simple <- Meat.Meat.QS
+  }
 
   RESULT <- list()
   RESULT$matrix <- Meat.Simple
-  RESULT$bw <- opt.BW
-  RESULT$bw.B <- opt.Bartlett.BW
+  RESULT$bw.QS <- opt.QS.BW
+  RESULT$bw.B  <- opt.Bartlett.BW
   return( RESULT )
 
 }
@@ -610,6 +656,7 @@ Psi.Ft <- function(theta,
 
   return( Psi.merge )
 }
+
 
 Grad.Psi.Aver.Ft <- function(theta,
                              GMM.Data,
@@ -691,6 +738,89 @@ Grad.Psi.Aver.Ft <- function(theta,
 }
 
 
+# Grad.Psi.Aver.Ft.Lambda <- function(theta,
+#                                     GMM.Data,
+#                                     Y.basis){
+#
+#   eps <- 10^(-6)
+#   lambda <- theta$lambda
+#
+#   Psi.ncol <- ncol( Psi.Ft(theta,GMM.Data,Y.basis) )
+#   T0 <- sum(1-GMM.Data$A)
+#   T1 <- sum(GMM.Data$A)
+#   Tt <- T0+T1
+#
+#   if(!is.null(theta$detrend)){
+#
+#     num.detrend <- length(theta$detrend)
+#     num.gamma <- length(theta$gamma)
+#     num.beta <- length(theta$beta)
+#
+#     Grad.Matrix <- matrix(0,Psi.ncol,num.detrend+num.gamma+num.beta)
+#
+#     theta.vec <- c(theta$detrend,
+#                    theta$gamma,
+#                    theta$beta)
+#
+#     for(jj in 1:length(theta.vec)){
+#
+#       theta.vec.plus <- theta.vec.minus <- theta.vec
+#       theta.vec.plus[jj] <- theta.vec.plus[jj] + eps
+#       theta.vec.minus[jj] <- theta.vec.minus[jj] - eps
+#
+#       theta.plus <- theta.minus <- list()
+#
+#       theta.plus$detrend <- theta.vec.plus[1:num.detrend]
+#       theta.plus$gamma <- theta.vec.plus[num.detrend+1:num.gamma]
+#       theta.plus$beta <- theta.vec.plus[num.detrend+num.gamma+1:num.beta]
+#
+#       theta.minus$detrend <- theta.vec.minus[1:num.detrend]
+#       theta.minus$gamma <- theta.vec.minus[num.detrend+1:num.gamma]
+#       theta.minus$beta <- theta.vec.minus[num.detrend+num.gamma+1:num.beta]
+#
+#       Grad.Matrix[,jj] <-
+#         ( apply( Psi.Ft(theta.plus,GMM.Data,Y.basis), 2, mean ) - apply( Psi.Ft(theta.minus,GMM.Data,Y.basis), 2, mean ) +
+#             10^(lambda)*sum((theta.plus$gamma-theta.minus$gamma)^2) ) / (2*eps)
+#
+#     }
+#
+#   } else {
+#
+#     num.gamma <- length(theta$gamma)
+#     num.beta <- length(theta$beta)
+#
+#     Grad.Matrix <- matrix(0,Psi.ncol,num.gamma+num.beta)
+#
+#     theta.vec <- c(theta$gamma,
+#                    theta$beta)
+#
+#     for(jj in 1:length(theta.vec)){
+#
+#       theta.vec.plus <- theta.vec.minus <- theta.vec
+#       theta.vec.plus[jj] <- theta.vec.plus[jj] + eps
+#       theta.vec.minus[jj] <- theta.vec.minus[jj] - eps
+#
+#       theta.plus <- theta.minus <- list()
+#
+#       theta.plus$gamma <- theta.vec.plus[1:num.gamma]
+#       theta.plus$beta <- theta.vec.plus[num.gamma+1:num.beta]
+#
+#       theta.minus$gamma <- theta.vec.minus[1:num.gamma]
+#       theta.minus$beta <- theta.vec.minus[num.gamma+1:num.beta]
+#
+#       Grad.Matrix[,jj] <-
+#         ( apply( Psi.Ft(theta.plus,GMM.Data,Y.basis), 2, mean ) - apply( Psi.Ft(theta.minus,GMM.Data,Y.basis), 2, mean ) +
+#             10^(lambda)*sum((theta.plus$gamma-theta.minus$gamma)^2) ) / (2*eps)
+#
+#     }
+#
+#   }
+#
+#   return(Grad.Matrix)
+#
+# }
+
+
 CV.lambda <- function(GMM.detrend.Data,
                       lambda){
 
@@ -716,7 +846,7 @@ CV.lambda <- function(GMM.detrend.Data,
     if(length(posG)==1){
       GX <- matrix(GX,1,length(GX))
     }
-    gamma.loo <- (MASS::ginv( t(GX)%*%(GX) + (Tt/T0)^2*10^(lambda)*diag(rep(1,N)) )%*%(t(GX)%*%(GY)))
+    gamma.loo <- (MASS::ginv( t(GX)%*%(GX) + 10^(lambda)*diag(rep(1,N)) )%*%(t(GX)%*%(GY)))
     CV.Residual[jj] <-  as.numeric((Y[jj] - (t(as.numeric(GMM.detrend.Data[jj,posW]))%*%gamma.loo)))
   }
 
