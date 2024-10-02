@@ -175,3 +175,5 @@ cbind(SPSC.Smoking$ATT - 1.96*SPSC.Smoking$BSE.ATT,
 ## Graphical summary
 plot.SPSC(SPSC.Smoking)
 ```
+
+![Alt text](./images/California.png?raw=true "California.png")
