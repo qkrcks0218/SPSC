@@ -122,7 +122,7 @@ True.ATT
 ## Graphical summary
 plot.SPSC(SPSC.Detrend)
 ```
-```{figure} Simulation.png
+```{figure} ./images/Simulation.png
 ---
 height: 200px
 ---
