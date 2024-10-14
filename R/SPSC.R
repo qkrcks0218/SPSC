@@ -300,7 +300,7 @@ SPSC <- function(
         window.unit <- ASE.ATT[conformal.iter]
 
         if(is.na(window.unit)){
-          window.unit <- sd(RESULT$Y - RESULT$SC)
+          window.unit <- 10*abs(RESULT$Y - RESULT$SC)
         }
 
         beta.grid <- beta.point + seq(-conformal.window,conformal.window,length=101)*window.unit
@@ -1006,3 +1006,30 @@ plot.SPSC <- function(spsc,                           # SPSC object
 
 
 }
+
+check.pretreatment.SPSC <-
+  function(spsc,                           # SPSC object
+           ...
+  ){
+
+    Tt <- length(spsc$Y)
+    T1 <- length(spsc$ATT)
+    T0 <- Tt-T1
+    Yvec <- (spsc$Y - spsc$SC)[1:T0]
+    YL <- range(Yvec)+c(-0.1,0.1)*sd(Yvec)
+
+    plot(1:T0,
+         Yvec,
+         col=1,
+         pch=19,
+         cex=0.5,
+         xlab="time",
+         ylab="residual",
+         xlim=c(0,T0+1),
+         ylim=YL) # observed Y
+
+    sp <- stats::smooth.spline(1:T0,Yvec)
+    df <- min(sp$df,round(T0*0.1))
+    points(stats::smooth.spline(1:T0,Yvec,df=df),col=2,type='l',lwd=2)
+    abline(h=0,col=1,lty=3)
+  }

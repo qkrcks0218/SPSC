@@ -114,8 +114,12 @@ cbind(SPSC.Detrend$ATT - 1.96*SPSC.Detrend$ASE.ATT,
       SPSC.Detrend$ATT + 1.96*SPSC.Detrend$ASE.ATT)
 True.ATT
 
+par(mfrow=c(1,2))
 ## Graphical summary
 plot.SPSC(SPSC.Detrend, caption.position="topleft")
+
+## Pre-treatment Plot
+check.pretreatment.SPSC(SPSC.Detrend)
 ```
 
 ![Alt text](./images/Simulation_F.png?raw=true "Simulation_F.png")
@@ -172,8 +176,12 @@ cbind(SPSC.Smoking$ATT - 1.96*SPSC.Smoking$ASE.ATT,
 cbind(SPSC.Smoking$ATT - 1.96*SPSC.Smoking$BSE.ATT,
       SPSC.Smoking$ATT + 1.96*SPSC.Smoking$BSE.ATT)
 
+par(mfrow=c(1,2))
 ## Graphical summary
 plot.SPSC(SPSC.Smoking, caption.position="bottomleft")
+
+## Pre-treatment Plot
+check.pretreatment.SPSC(SPSC.Smoking)
 ```
 
 ![Alt text](./images/California_F.png?raw=true "California_F.png")

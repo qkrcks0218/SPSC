@@ -1,25 +1,14 @@
-\name{plot.SPSC}
-\alias{plot.SPSC}
-\title{Plotting a Single Proxy Synthetic Control Object}
+\name{check.pretreatment.SPSC}
+\alias{check.pretreatment.SPSC}
+\title{Checking the Pre-treatment Fit of a Single Proxy Synthetic Control Object}
 \description{
-  Plot a Single Proxy Synthetic Control Object}
+  Checking the Pre-treatment Fit of a Single Proxy Synthetic Control Object}
 \usage{
 plot(spsc,                           # SPSC object
-     COL     = c(1,2),               # Y/SC color
-     LTY     = c(1,2),               # Y/SC line type
-     PI      = TRUE,                 # draw prediction interval
-     COL.PI  = rgb(1,0,0,0.2),       # prediction interval color
-     caption = TRUE,                 # Denote variables
      ...)
 }
 \arguments{
   \item{spsc}{A SPSC object obtained from \code{SPSC}.}
-  \item{COL}{\emph{(Optional)} A vector of colors for the observed outcome and synthetic control, respectively. The default is \code{COL = c(1,2)}, i.e. black and red.}
-  \item{LTY}{\emph{(Optional)} A vector of line types for the observed outcome and synthetic control, respectively. The default is \code{LTY = c(1,2)}, i.e. solid and dashed lines.}
-  \item{PI}{\emph{(Optional)} A logical input \code{(TRUE/FALSE)} to draw prediction intervals. The default is \code{PI = TRUE}.}
-  \item{COL.PI}{\emph{(Optional)} Color for the prediction interval. The default is \code{COL.PI = rgb(1,0,0,0.2)}, i.e. transparent red.}
-  \item{caption}{\emph{(Optional)} A logical input \code{(TRUE/FALSE)} to denote the observed outcome and synthetic control. The default is \code{caption = TRUE}.}
-  \item{caption.position}{\emph{(Optional)} Caption position taking a value from \code{"topleft","topright","bottomleft","bottomright"}. The default is \code{caption.position = "topleft"}.}
 }
 \references{
   Chan Park & Eric Tchetgen Tchetgen (2023) \strong{Single Proxy Synthetic Control}, \emph{arXiv} \href{https://arxiv.org/abs/2307.16353}{[Link]}
