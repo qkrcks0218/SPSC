@@ -131,7 +131,7 @@ SPSC <- function(
 
   ###### avar
 
-  if(T1>1){
+  if(T1>b){
     if(detrend){
       Psi <- Psi.Ft(theta.estimate, GMM.Data, Y.basis)
       Sigma <- HAC.Meat(Psi,dim.detrend+dim.gamma+1:dim.beta,T0,T1)
@@ -194,6 +194,7 @@ SPSC <- function(
     AVAR.ATT <- diag( (matrix(as.matrix(GMM.Data[T0+1:T1,pos.B]),T1,dim.beta))%*%AVAR.beta%*%t((matrix(as.matrix(GMM.Data[T0+1:T1,pos.B]),T1,dim.beta))) )
     ASE.ATT <- sqrt(AVAR.ATT)
   } else {
+    print("Post-treatment time series is too short to obtain a valid standard error.")
     Grad.Psi <- Grad.Psi.Aver.Ft(theta.estimate, GMM.Data, Y.basis)
     Psi <- Psi.Ft(theta.estimate, GMM.Data, Y.basis)
 
@@ -229,7 +230,13 @@ SPSC <- function(
 
     T0.Extend  <- c(1:T0,1:T0)
     T1.Extend  <- c(1:T1,1:T1)
-    tw <- round(max(Sigma$bw.B,1))
+    if(exists("Sigma")){
+      tw <- round(max(Sigma$bw.B,1))
+    } else {
+      print("Bootstrap CI may not be correct")
+      tw <- 1
+    }
+
 
     boot.mat <- matrix(0,bootstrap.num,dim.beta)
 
@@ -256,7 +263,11 @@ SPSC <- function(
 
   if(!is.null(conformal.period)){
 
-    valid.pvalue <- max(((1:T0+1)/(T0+1))[(1:T0+1)/(T0+1)<=conformal.pvalue])
+    if(sum((1:T0+1)/(T0+1)<=conformal.pvalue)==0){
+      print("Pre-treatment time series is too short. Assign a larger conformal.pvalue.")
+    } else {
+      valid.pvalue <- max(((1:T0+1)/(T0+1))[(1:T0+1)/(T0+1)<=conformal.pvalue])
+    }
 
     if(conformal.cover){
 
